@@ -807,8 +807,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         let categoryChartInstance = null;
 
         // Initialize App on DOM Load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const today = new Date().toISOString().split('T')[0];
+            await loadDataFromAppsScript();
             const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
             document.getElementById('rent-start-date').value = today;
             document.getElementById('rent-end-date').value = tomorrow;
@@ -1967,6 +1968,32 @@ async function downloadReceiptImage(rentalId) {
         showToast('Gagal membuat gambar nota', 'warning');
     } finally {
         document.body.removeChild(receipt);
+    }
+}
+
+async function loadDataFromAppsScript() {
+    const syncUrl = state.appscriptUrl || WEB_APP_URL;
+
+    if (!syncUrl) return;
+
+    try {
+        const response = await fetch(syncUrl);
+        const data = await response.json();
+
+        if (data.inventory && data.rentals) {
+
+            state.inventory = data.inventory;
+            state.rentals = data.rentals;
+
+            saveStateToLocalStorage();
+
+            renderAllViews();
+
+            console.log("Data berhasil diperbarui");
+        }
+
+    } catch(err) {
+        console.error("Gagal mengambil data:", err);
     }
 }
 
