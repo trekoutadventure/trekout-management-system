@@ -1997,6 +1997,20 @@ async function loadDataFromAppsScript() {
     }
 }
 
+
+async function loadDataFromSheet() {
+    const response = await fetch(WEB_APP_URL);
+    const data = await response.json();
+
+    state.products = data.products;
+    state.rentals = data.rentals;
+
+    saveState(); // optional simpan cache lokal
+}
+
+setInterval(async () => {
+    await loadDataFromAppsScript();
+}, 10000);
     </script>
 </body>
 </html>
