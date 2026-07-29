@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trek-Out Adventure - Manajemen Inventory & Sewa Alat Outdoor</title>
+    <meta name="description" content="Trek-Out Management System adalah sistem manajemen inventory dan penyewaan alat outdoor untuk mengelola stok, varian barang, transaksi sewa, dan data penyewa">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -433,12 +434,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     </div>
                     <select id="inventory-category-filter" onchange="renderInventoryTable()" class="bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
                         <option value="ALL">Semua Kategori</option>
-                        <option value="Tenda & Shelter">Tenda & Shelter</option>
+                        <option value="Peralatan Camping">Peralatan Camping</option>
+                        <option value="Peralatan Masak">Peralatan Masak</option>
+                        <option value="Peralatan Pribadi">Peralatan Pribadi</option>
+                        <option value="Peralatan Santai">Peralatan Santai</option>
                         <option value="Tas & Carrier">Tas & Carrier</option>
-                        <option value="Sleep System">Sleep System (Sleeping Bag/Matras)</option>
-                        <option value="Cooking Gear">Cooking Gear (Kompor/Nesting)</option>
-                        <option value="Apparel & Sepatu">Apparel & Sepatu</option>
-                        <option value="Penerangan & Aksesoris">Penerangan & Aksesoris</option>
                     </select>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -628,12 +628,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Kategori *</label>
                         <select id="item-category" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
-                            <option value="Tenda & Shelter">Tenda & Shelter</option>
+                            <option value="Peralatan Camping">Peralatan Camping</option>
+                            <option value="Peralatan Masak">Peralatan Masak</option>
+                            <option value="Peralatan Pribadi">Peralatan Pribadi</option>
+                            <option value="Peralatan Santai">Peralatan Santai</option>
                             <option value="Tas & Carrier">Tas & Carrier</option>
-                            <option value="Sleep System">Sleep System (Sleeping Bag/Matras)</option>
-                            <option value="Cooking Gear">Cooking Gear (Kompor/Nesting)</option>
-                            <option value="Apparel & Sepatu">Apparel & Sepatu</option>
-                            <option value="Penerangan & Aksesoris">Penerangan & Aksesoris</option>
                         </select>
                     </div>
                 </div>
@@ -806,19 +805,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
         // Initialize App on DOM Load
         window.addEventListener('DOMContentLoaded', () => {
-            // Set today's date defaults in rental modal
             const today = new Date().toISOString().split('T')[0];
             const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
             document.getElementById('rent-start-date').value = today;
             document.getElementById('rent-end-date').value = tomorrow;
 
             if (state.appscriptUrl) {
-                // isi otomatis dengan URL bawaan
                 document.getElementById('appscript-url').value = state.appscriptUrl || WEB_APP_URL;
             }
 
             saveStateToLocalStorage();
             renderAllViews();
+
+            // buka tab terakhir setelah refresh
+            const lastTab = localStorage.getItem('trekout_active_tab') || 'dashboard';
+            switchTab(lastTab);
         });
 
         function saveStateToLocalStorage() {
@@ -830,6 +831,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         // NAVIGATION & TAB SWITCHING
         // ==========================================
         function switchTab(tabName) {
+            localStorage.setItem('trekout_active_tab', tabName);
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('text-brand-400', 'bg-slate-800', 'border', 'border-slate-700');
