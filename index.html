@@ -684,7 +684,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">No. WhatsApp / HP *</label>
-                        <input type="text" id="rent-cust-phone" required placeholder="081234567890" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        <input type="text" id="rent-cust-phone" id="rent-cust-phone" required minlength="10" maxlength="15" pattern="08[0-9]{8,13}" placeholder="081234567890" oninvalid="this.setCustomValidity('Masukkan nomor WhatsApp yang valid (diawali 08 dan minimal 10 digit)')"
+                        oninput="this.setCustomValidity('')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Jaminan Identitas *</label>
