@@ -2049,44 +2049,28 @@ async function downloadReceiptImage(rentalId) {
         </tr>
     `).join('');
 
-    const receiptHtml = `
-    <html>
-    <head>
-        <title>Nota ${rental.id}</title>
-        <style>
-            @page {
-                size: 80mm auto;
-                margin: 0;
-            }
+    // Buat elemen nota sementara
+    const receipt = document.createElement('div');
+    receipt.id = 'temp-receipt';
+    receipt.style.cssText = `
+        width: 360px;
+        background: #fff;
+        color: #000;
+        padding: 18px;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+        position: fixed;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        z-index: 9999;
+        box-sizing: border-box;
+    `;
 
-            body {
-                width: 80mm;
-                margin: 0 auto;
-                padding: 18px;
-                font-family: Arial, sans-serif;
-                font-size: 13px;
-                line-height: 1.5;
-                color: #000;
-                box-sizing: border-box;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 12px;
-            }
-
-            td {
-                vertical-align: top;
-            }
-        </style>
-    </head>
-    <body>
-
+    receipt.innerHTML = `
         <div style="text-align:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:bold;">
-                TREK-OUT ADVENTURE
-            </div>
+            <div style="font-size:18px;font-weight:bold;">TREK-OUT ADVENTURE</div>
             <div style="font-size:11px;">
                 Kp. Gudang, Balewangi<br>
                 Garut, Jawa Barat<br>
@@ -2110,16 +2094,16 @@ async function downloadReceiptImage(rentalId) {
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <table>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
             ${itemsHtml}
         </table>
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <table style="font-size:13px;">
+        <table style="width:100%;font-size:13px;">
             <tr>
                 <td><strong>TOTAL</strong></td>
-                <td style="text-align:right;font-weight:bold;">
+                <td style="text-align:right;font-weight:bold; white-space:nowrap;">
                     Rp ${rental.totalAmount.toLocaleString('id-ID')}
                 </td>
             </tr>
@@ -2141,22 +2125,13 @@ async function downloadReceiptImage(rentalId) {
             <br>Developed by <strong>Tedi Firdaus</strong>
             <br>────────────────────────────────
         </div>
-
-        <script>
-            window.onload = () => {
-                window.print();
-                setTimeout(() => window.close(), 500);
-            };
-        <\/script>
-
-    </body>
-    </html>`;
+    `;
 
     document.body.appendChild(receipt);
 
     try {
         // Tunggu sebentar agar elemen benar-benar ter-render
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         const canvas = await html2canvas(receipt, {
             scale: 2,
