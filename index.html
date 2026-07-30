@@ -392,6 +392,43 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 
 }
+
+/* ===============================
+   FIX NOTA DOWNLOAD MOBILE
+   =============================== */
+
+/* Area nota harus punya background sendiri */
+#nota,
+.nota,
+#print-area {
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+
+/* Sembunyikan watermark saat render/cetak */
+@media print {
+    .developer-watermark {
+        display: none !important;
+    }
+
+    html {
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* Hindari elemen fixed ikut tertangkap canvas */
+@media (max-width:768px){
+
+    .developer-watermark {
+        position: absolute !important;
+    }
+
+}
   </style>
 </head>
 <body class="h-full flex flex-col font-sans overflow-x-hidden antialiased selection:bg-brand-500 selection:text-white">
@@ -2060,10 +2097,10 @@ async function downloadReceiptImage(rentalId) {
         font-family: Arial, sans-serif;
         font-size: 13px;
         line-height: 1.5;
-        position: fixed;
-        left: 0;
+        position: absolute;
+        left: -9999px;
         top: 0;
-        z-index: 9999;
+        z-index: -1;
         box-sizing: border-box;
     `;
 
@@ -2134,14 +2171,18 @@ async function downloadReceiptImage(rentalId) {
     `;
 
     document.body.appendChild(receipt);
-
+    await new Promise(resolve => requestAnimationFrame(resolve));
     try {
         // Tunggu sebentar agar elemen benar-benar ter-render
         await new Promise(resolve => setTimeout(resolve, 800));
 
         const canvas = await html2canvas(receipt, {
-            scale: 2,
-            backgroundColor: '#ffffff'
+            scale: 3,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            windowWidth: receipt.scrollWidth,
+            windowHeight: receipt.scrollHeight
         });
 
         const image = canvas.toDataURL('image/png');
