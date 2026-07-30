@@ -809,7 +809,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         // Initialize App on DOM Load
         window.addEventListener('DOMContentLoaded', async () => {
             const today = new Date().toISOString().split('T')[0];
-            await loadDataFromAppsScript();
             const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
             document.getElementById('rent-start-date').value = today;
             document.getElementById('rent-end-date').value = tomorrow;
@@ -819,6 +818,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             }
 
             saveStateToLocalStorage();
+
+            await loadDataFromAppsScript();
+
             renderAllViews();
 
             // buka tab terakhir setelah refresh
@@ -1090,7 +1092,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             container.appendChild(div);
         }
 
-        function handleSaveItem(e) {
+        async function handleSaveItem(e) {
             e.preventDefault();
             const id = document.getElementById('item-id').value;
             const name = document.getElementById('item-name').value;
@@ -1152,7 +1154,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             saveStateToLocalStorage();
             closeModal('modal-add-item');
             renderAllViews();
-            triggerSyncToAppsScript();
+            await triggerSyncToAppsScript();
         }
 
         function editItem(id) {
@@ -1174,13 +1176,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             document.getElementById('modal-add-item').classList.remove('hidden');
         }
 
-        function deleteItem(id) {
+        async function deleteItem(id) {
             if (confirm('Apakah Anda yakin ingin menghapus alat ini dari daftar stok?')) {
                 state.inventory = state.inventory.filter(i => i.id !== id);
                 saveStateToLocalStorage();
                 renderAllViews();
                 showToast('Item berhasil dihapus.', 'info');
-                triggerSyncToAppsScript();
+                await triggerSyncToAppsScript();
             }
         }
 
@@ -1389,7 +1391,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             document.getElementById('rent-grand-total').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
         }
 
-        function handleSaveRental(e) {
+        async function handleSaveRental(e) {
             e.preventDefault();
 
             const customerName = document.getElementById('rent-cust-name').value.trim();
@@ -1470,11 +1472,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             closeModal('modal-add-rental');
             renderAllViews();
             showToast('Transaksi penyewaan berhasil diproses!', 'success');
-            triggerSyncToAppsScript();
+            await triggerSyncToAppsScript();
         }
 
         // Return Process Logic
-        function openReturnModal(rentalId) {
+        async function openReturnModal(rentalId) {
             const rental = state.rentals.find(r => r.id === rentalId);
             if (!rental) return;
 
@@ -1492,7 +1494,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             document.getElementById('modal-return-rental').classList.remove('hidden');
         }
 
-        function handleConfirmReturn(e) {
+        async function handleConfirmReturn(e) {
             e.preventDefault();
             const rentalId = document.getElementById('return-rental-id').value;
             const condition = document.getElementById('return-condition').value;
@@ -1520,7 +1522,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             closeModal('modal-return-rental');
             renderAllViews();
             showToast('Pengembalian barang berhasil diproses dan stok dikembalikan!', 'success');
-            triggerSyncToAppsScript();
+            await triggerSyncToAppsScript();
         }
 
         // ==========================================
@@ -1576,7 +1578,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         // ==========================================
         // APPS SCRIPT SYNC & UTILS
         // ==========================================
-        function saveAppsScriptUrl() {
+        async function saveAppsScriptUrl() {
             // ambil URL dari input, kalau kosong pakai WEB_APP_URL bawaan
             const url = document.getElementById('appscript-url').value.trim() || WEB_APP_URL;
 
@@ -1586,7 +1588,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             showToast('URL Google Apps Script berhasil disimpan!', 'success');
 
             // langsung sync setelah disimpan
-            triggerSyncToAppsScript();
+            await triggerSyncToAppsScript();
         }
 
         async function triggerSyncToAppsScript() {
@@ -1613,6 +1615,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             const result = JSON.parse(text);
 
             if (result.status === 'success') {
+                await loadDataFromAppsScript();
                 showToast('Data berhasil tersinkron ke Google Sheets!', 'success');
             } else {
                 showToast('Sync gagal: ' + result.message, 'warning');
@@ -1623,7 +1626,44 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             showToast('Tidak bisa terhubung ke Google Sheets', 'warning');
         }
     }
+        async function loadDataFromAppsScript() {
 
+            const syncUrl = state.appscriptUrl || WEB_APP_URL;
+
+            if (!syncUrl) return;
+
+            try {
+
+                const response = await fetch(syncUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        action: "LOAD_ALL"
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success") {
+
+                    state.inventory = result.inventory || [];
+                    state.rentals = result.rentals || [];
+
+                    saveStateToLocalStorage();
+
+                    renderAllViews();
+
+                }
+
+            } catch(err){
+
+                console.error(err);
+
+            }
+
+        }
         function copyAppsScriptCode() {
             const code = document.getElementById('code-gs-container').innerText;
             navigator.clipboard.writeText(code).then(() => {
@@ -1688,10 +1728,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
     `;
 
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('code-gs-container').textContent = APPS_SCRIPT_CODE;
     });
-    function clearAllRentalData() {
+    async function clearAllRentalData() {
     if (!confirm('Hapus SEMUA transaksi sewa dan data penyewa?')) return;
 
     // Kosongkan semua transaksi
@@ -1699,16 +1739,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
     // Simpan perubahan
     saveStateToLocalStorage();
-
+    await loadDataFromAppsScript();
     // Refresh tampilan
     renderAllViews();
 
     // Sync ke Google Sheets
-    triggerSyncToAppsScript();
+    await triggerSyncToAppsScript();
 
     showToast('Semua transaksi dan data penyewa berhasil dibersihkan!', 'success');
 }
-function deleteRental(rentalId) {
+async function deleteRental(rentalId) {
     const rental = state.rentals.find(r => r.id === rentalId);
     if (!rental) return;
 
@@ -1734,7 +1774,7 @@ function deleteRental(rentalId) {
 
     saveStateToLocalStorage();
     renderAllViews();
-    triggerSyncToAppsScript();
+    await triggerSyncToAppsScript();
 
     showToast('Transaksi berhasil dihapus.', 'success');
 }
@@ -1970,47 +2010,12 @@ async function downloadReceiptImage(rentalId) {
         document.body.removeChild(receipt);
     }
 }
-
-async function loadDataFromAppsScript() {
-    const syncUrl = state.appscriptUrl || WEB_APP_URL;
-
-    if (!syncUrl) return;
-
-    try {
-        const response = await fetch(syncUrl);
-        const data = await response.json();
-
-        if (data.inventory && data.rentals) {
-
-            state.inventory = data.inventory;
-            state.rentals = data.rentals;
-
-            saveStateToLocalStorage();
-
-            renderAllViews();
-
-            console.log("Data berhasil diperbarui");
-        }
-
-    } catch(err) {
-        console.error("Gagal mengambil data:", err);
-    }
-}
-
-
-async function loadDataFromSheet() {
-    const response = await fetch(WEB_APP_URL);
-    const data = await response.json();
-
-    state.products = data.products;
-    state.rentals = data.rentals;
-
-    saveState(); // optional simpan cache lokal
-}
-
 setInterval(async () => {
+
     await loadDataFromAppsScript();
-}, 10000);
+
+}, 5000);
+
     </script>
 </body>
 </html>
