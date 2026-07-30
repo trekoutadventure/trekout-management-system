@@ -2053,17 +2053,16 @@ async function downloadReceiptImage(rentalId) {
     const receipt = document.createElement('div');
     receipt.id = 'temp-receipt';
     receipt.style.cssText = `
-        width: 360px;
-        background: #fff;
-        color: #000;
-        padding: 18px;
+        width: 320px;
+        background: white;
+        color: black;
+        padding: 20px;
         font-family: Arial, sans-serif;
         font-size: 13px;
         line-height: 1.5;
         position: fixed;
         left: 0;
         top: 0;
-        opacity: 0;
         z-index: 9999;
         box-sizing: border-box;
     `;
@@ -2102,9 +2101,16 @@ async function downloadReceiptImage(rentalId) {
 
         <table style="width:100%;font-size:13px;">
             <tr>
-                <td><strong>TOTAL</strong></td>
-                <td style="text-align:right;font-weight:bold; white-space:nowrap;">
-                    Rp ${rental.totalAmount.toLocaleString('id-ID')}
+                <td>
+                    <strong>TOTAL</strong>
+                </td>
+
+                <td style="
+                    text-align:right;
+                    font-weight:bold;
+                    white-space:nowrap;
+                ">
+                    Rp ${Number(rental.totalAmount || 0).toLocaleString('id-ID')}
                 </td>
             </tr>
         </table>
