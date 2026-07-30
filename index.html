@@ -265,6 +265,133 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 1;
 }
+
+
+
+/* ==========================================
+   TREK-OUT DEVELOPER WATERMARK RESPONSIVE
+   ========================================== */
+
+.developer-watermark {
+    position: fixed;
+    bottom: 14px;
+    left: 18px;
+    z-index: 40;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 12px;
+    border-radius: 999px;
+
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(6px);
+
+    border: 1px solid rgba(148,163,184,0.12);
+
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .4px;
+
+    color: rgba(203,213,225,0.45);
+
+    pointer-events: none;
+    user-select: none;
+
+    transition: all .3s ease;
+}
+
+
+.developer-watermark strong {
+    color: rgba(120,183,216,.8);
+    font-weight: 700;
+}
+
+
+/* Hover hanya desktop */
+@media (hover:hover){
+
+    .developer-watermark:hover {
+
+        background: rgba(15,23,42,.75);
+
+        color: rgba(226,232,240,.9);
+
+        border-color:
+        rgba(120,183,216,.35);
+
+        transform:
+        translateY(-3px);
+
+    }
+
+}
+
+
+/* Tablet */
+@media(max-width:1024px){
+
+    .developer-watermark{
+
+        bottom:12px;
+        left:14px;
+
+        font-size:10.5px;
+
+        padding:
+        5px 10px;
+
+    }
+
+}
+
+
+
+/* Mobile */
+@media(max-width:768px){
+
+    .developer-watermark{
+
+        left:50%;
+        transform:translateX(-50%);
+
+        bottom:10px;
+
+        width:max-content;
+        max-width:90%;
+
+        justify-content:center;
+
+        font-size:10px;
+
+        padding:
+        5px 12px;
+
+        text-align:center;
+
+    }
+
+}
+
+
+/* HP kecil */
+@media(max-width:480px){
+
+    .developer-watermark{
+
+        font-size:9px;
+
+        bottom:8px;
+
+        padding:
+        4px 10px;
+
+        letter-spacing:.2px;
+
+    }
+
+}
   </style>
 </head>
 <body class="h-full flex flex-col font-sans overflow-x-hidden antialiased selection:bg-brand-500 selection:text-white">
@@ -1244,7 +1371,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         </td>
                         <td class="py-3.5 px-4 max-w-xs">${itemsSummary}</td>
                         <td class="py-3.5 px-4 text-xs">
-                            <div class="text-slate-200">${r.startDate} s/d ${r.endDate}</div>
+                            <div class="text-slate-200">
+                                ${new Date(r.startDate).toLocaleDateString('id-ID')} s/d
+                                ${new Date(r.endDate).toLocaleDateString('id-ID')}</div>
                             <div class="text-slate-400">${r.days} Hari</div>
                         </td>
                         <td class="py-3.5 px-4">
@@ -1845,16 +1974,12 @@ function printReceipt(rentalId) {
         <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px;">
             <span><strong>TANGGAL</strong></span>
             <span>${new Date().toLocaleDateString('id-ID')}</span>
-            <span>${new Date().toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit'
-            })}</span>
         </div>
 
         <div style="margin-bottom:10px;">
             <strong>${rental.customerName}</strong><br>
             ${rental.phone}<br>
-            Sewa: ${rental.startDate} s/d ${rental.endDate}<br>
+            Sewa: ${new Date(rental.startDate).toLocaleDateString('id-ID')} s/d ${new Date(rental.endDate).toLocaleDateString('id-ID')}<br>
             Durasi: ${rental.days} Hari
         </div>
 
@@ -1876,9 +2001,20 @@ function printReceipt(rentalId) {
         </table>
 
         <div style="text-align:center;margin-top:18px;font-size:11px;">
-            Terima kasih sudah memilih Trek-Out Adventure!
-            <br>Dukung kami dengan memberikan ulasan<br>
-            di Google Maps
+            <br>
+            <br>
+            Terima kasih telah mempercayakan
+            <br>perjalanan outdoor Anda kepada kami.
+            <br><br>
+            Bantu kami berkembang dengan memberikan
+            <br>ulasan di Google Maps.
+        </div>
+
+        <div style="text-align:center;margin-top:18px;font-size:11px;">
+            ────────────────────────────────
+            <br>Powered by <strong>TrekOut IMS v1.0</strong>
+            <br>Developed by <strong>Tedi Firdaus</strong>
+            <br>────────────────────────────────
         </div>
 
         <script>
@@ -1946,13 +2082,12 @@ async function downloadReceiptImage(rentalId) {
         <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px;">
             <span><strong>TANGGAL</strong></span>
             <span>${new Date().toLocaleDateString('id-ID')}</span>
-            <span>${new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</span>
         </div>
 
         <div style="margin-bottom:10px;">
             <strong>${rental.customerName}</strong><br>
             ${rental.phone}<br>
-            Sewa: ${rental.startDate} s/d ${rental.endDate}<br>
+            Sewa: ${new Date(rental.startDate).toLocaleDateString('id-ID')} s/d ${new Date(rental.endDate).toLocaleDateString('id-ID')}<br>
             Durasi: ${rental.days} Hari
         </div>
 
@@ -1974,9 +2109,20 @@ async function downloadReceiptImage(rentalId) {
         </table>
 
         <div style="text-align:center;margin-top:18px;font-size:11px;">
-            Terima kasih sudah memilih Trek-Out Adventure!
-            <br>Dukung kami dengan memberikan ulasan<br>
-            di Google Maps
+            <br>
+            <br>
+            Terima kasih telah mempercayakan
+            <br>perjalanan outdoor Anda kepada kami.
+            <br><br>
+            Bantu kami berkembang dengan memberikan
+            <br>ulasan di Google Maps.
+        </div>
+
+        <div style="text-align:center;margin-top:18px;font-size:11px;">
+            ────────────────────────────────
+            <br>Powered by <strong>TrekOut IMS v1.0</strong>
+            <br>Developed by <strong>Tedi Firdaus</strong>
+            <br>────────────────────────────────
         </div>
     `;
 
@@ -2014,8 +2160,14 @@ setInterval(async () => {
 
     await loadDataFromAppsScript();
 
-}, 5000);
+}, 1000);
 
     </script>
+
+<!-- Developer Watermark -->
+<div class="developer-watermark">
+    TrekOut IMS v1.0 • Developed by <strong>Tedi Firdaus</strong>
+</div>
+
 </body>
 </html>
