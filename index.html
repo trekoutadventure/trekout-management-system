@@ -2499,6 +2499,22 @@ document.addEventListener("visibilitychange", async () => {
         renderCustomerTable();
     }
 });
+
+let syncRunning = false;
+
+setInterval(async () => {
+
+    if (syncRunning) return;
+
+    syncRunning = true;
+
+    try {
+        await loadDataFromAppsScript();
+    } finally {
+        syncRunning = false;
+    }
+
+}, 1000);
     </script>
 
 <!-- Developer Watermark -->
