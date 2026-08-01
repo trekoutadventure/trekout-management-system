@@ -1472,7 +1472,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 }
             } else {
                 // Add New
-                const newId = 'TREK-' + String(Date.now()).slice(-4);
+                // ambil nomor terbesar yang sudah ada
+                const lastNumber = state.inventory.length > 0
+                    ? Math.max(...state.inventory.map(item => {
+                        const num = parseInt(String(item.id).replace('TREK-', ''));
+                        return isNaN(num) ? 0 : num;
+                    }))
+                    : 0;
+
+                // buat ID baru berurutan
+                const newId = 'TREK-' + String(lastNumber + 1).padStart(3, '0');
                 state.inventory.push({
                     id: newId,
                     name,
