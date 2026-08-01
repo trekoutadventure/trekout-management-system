@@ -1454,46 +1454,44 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 }
             });
 
-            let syncedItem = null;
-            let isUpdate = false;
-
             if (id) {
                 // Update Existing
                 const idx = state.inventory.findIndex(i => i.id === id);
                 if (idx !== -1) {
+                    // Retain existing rented counts where variant matches
                     const oldVariants = state.inventory[idx].variants || [];
                     variants.forEach(newV => {
                         let matched = oldVariants.find(o => o.color === newV.color && o.size === newV.size);
-                        if (matched) newV.rented = matched.rented;
+                        if (matched) {
+                            newV.rented = matched.rented;
+                        }
                     });
 
                     state.inventory[idx] = { ...state.inventory[idx], name, category, pricePerDay, variants };
                     showToast('Data alat outdoor berhasil diperbarui.', 'success');
-                    syncedItem = state.inventory[idx];
-                    isUpdate = true;
                 }
             } else {
                 // Add New
                 const newId = 'INV-' + String(Date.now()).slice(-4);
-                const newItem = { id: newId, name, category, pricePerDay, variants };
-                state.inventory.push(newItem);
+                state.inventory.push({
+                    id: newId,
+                    name,
+                    category,
+                    pricePerDay,
+                    variants
+                });
                 showToast('Alat outdoor baru berhasil ditambahkan.', 'success');
-                syncedItem = newItem;
             }
 
             saveStateToLocalStorage();
             closeModal('modal-add-item');
 
+            // render yang diperlukan aja
             renderInventoryTable();
             renderDashboard();
 
-            if (syncedItem) {
-                if (isUpdate) {
-                    updateItemToAppsScript(syncedItem).catch(console.error);
-                } else {
-                    addItemToAppsScript(syncedItem).catch(console.error);
-                }
-            }
+            // sync di background
+            triggerSyncToAppsScript().catch(console.error);
             async function saveItemToAppsScript(action, item) {
 
                 const syncUrl = state.appscriptUrl || WEB_APP_URL;
