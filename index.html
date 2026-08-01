@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trek-Out Adventure - Manajemen Inventory & Sewa Alat Outdoor</title>
-    <meta name="description" content="Trek-Out Management System adalah sistem manajemen inventory dan penyewaan alat outdoor untuk mengelola stok, varian barang, transaksi sewa, dan data penyewa">
+    <meta name="description" content="Trek-Out Management System adalah sistem manajemen inventory dan penyewaan alat outdoor untuk mengelola stok & transaksi sewa">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <link rel="icon" type="image/png" href="trekout-logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
     // ===================== [TAMBAHKAN DI SINI] =====================
@@ -442,6 +447,90 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 
 }
+/* ==========================================
+   TOM SELECT - TREK OUT THEME
+========================================== */
+
+.ts-wrapper {
+    font-size: 12px;
+}
+
+.ts-control {
+    background: transparent !important;
+    border: none !important;
+    color: #f8fafc !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+.ts-control:hover{
+    border-color:rgba(120,183,216,.8) !important;
+}
+
+.ts-control.focus{
+    border-color:rgba(120,183,216,.8) !important;
+    box-shadow:0 0 0 3px rgba(16,185,129,.15)!important;
+}
+
+.ts-control input{
+    color:#fff !important;
+}
+
+.ts-control input::placeholder{
+    color:#94a3b8 !important;
+}
+
+/* dropdown */
+
+.ts-dropdown{
+    background:#0f172a !important;
+    border:1px solid #334155 !important;
+    border-radius:10px !important;
+    overflow:hidden;
+    margin-top:6px;
+}
+
+.ts-dropdown .option{
+    color:#e2e8f0 !important;
+    padding:10px 12px;
+    transition:.15s;
+}
+
+.ts-dropdown .option:hover{
+    background:#1e293b !important;
+    color:rgba(120,183,216,.8) !important;
+}
+
+.ts-dropdown .active{
+    background:rgb(35 77 110 / 0.3) !important;
+    color:white !important;
+}
+
+.ts-dropdown .selected{
+    background: rgb(35 77 110 / 0.3) !important;
+    color:white !important;
+}
+
+/* scrollbar */
+
+.ts-dropdown-content::-webkit-scrollbar{
+    width:6px;
+}
+
+.ts-dropdown-content::-webkit-scrollbar-track{
+    background:#0f172a;
+}
+
+.ts-dropdown-content::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:20px;
+}
+
+.ts-dropdown-content::-webkit-scrollbar-thumb:hover{
+    background:rgba(120,183,216,.8);
+}
   </style>
 </head>
 <body class="h-full flex flex-col font-sans overflow-x-hidden antialiased selection:bg-brand-500 selection:text-white">
@@ -456,7 +545,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight tracking-wide text-white">TREK-OUT <span class="">ADVENTURE</span></h1>
-                    <p class="text-xs text-slate-400">Sistem Inventory & Penyewaan Alat Outdoor</p>
+                    <p class="text-xs text-slate-400">Sistem Manajemen Stok & Transaksi Penyewaan Alat Outdoor</p>
                 </div>
             </div>
 
@@ -464,11 +553,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             <div class="flex items-center space-x-2 sm:space-x-3">
                 <button onclick="openRentalModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold flex items-center shadow-lg shadow-brand-600/30 transition duration-150">
                     <i class="fa-solid fa-cart-plus mr-2"></i>
-                    <span>Sewa Baru</span>
+                    <span>Transaksi Baru</span>
                 </button>
                 <button onclick="openAddItemModal()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium flex items-center transition duration-150 border border-slate-600">
                     <i class="fa-solid fa-plus mr-2"></i>
-                    <span class="hidden sm:inline">Tambah Barangnya</span>
+                    <span class="hidden sm:inline">Tambah Barang</span>
                     <span class="sm:hidden">Barang</span>
                 </button>
                 <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
@@ -485,7 +574,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             </button>
             <button onclick="switchTab('inventory')" id="nav-inventory" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
                 <i class="fa-solid fa-boxes-stacked"></i>
-                <span>Stok & Varian Alat</span>
+                <span>Daftar Stok Barang</span>
             </button>
             <button onclick="switchTab('rentals')" id="nav-rentals" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
                 <i class="fa-solid fa-receipt"></i>
@@ -510,14 +599,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 <!-- Card 1 -->
                 <div class="bg-slate-800/70 border border-slate-700/60 rounded-2xl p-5 shadow-sm">
                     <div class="flex items-center justify-between">
-                        <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Item Alat</span>
+                        <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Barang</span>
                         <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                            <i class="fa-solid fa-tent text-lg"></i>
+                            <i class="fa-solid fa-boxes-stacked text-lg"></i>
                         </div>
                     </div>
                     <div class="mt-3 flex items-baseline justify-between">
                         <span id="stat-total-items" class="text-3xl font-bold text-white">0</span>
-                        <span id="stat-total-unit-variants" class="text-xs text-slate-400">0 Total Unit Varian</span>
+                        <span id="stat-total-unit-variants" class="text-xs text-slate-400">0 Total Barang</span>
                     </div>
                 </div>
 
@@ -540,7 +629,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     <div class="flex items-center justify-between">
                         <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Stok Tersedia</span>
                         <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center">
-                            <i class="fa-solid fa-circle-check text-lg"></i>
+                            <i class="fa-solid fa-warehouse text-lg"></i>
                         </div>
                     </div>
                     <div class="mt-3 flex items-baseline justify-between">
@@ -554,7 +643,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     <div class="flex items-center justify-between">
                         <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Pendapatan Sewa</span>
                         <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                            <i class="fa-solid fa-rupiah-sign text-lg"></i>
+                            <i class="fa-solid fa-money-bill-trend-up text-lg"></i>
                         </div>
                     </div>
                     <div class="mt-3">
@@ -585,7 +674,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="font-semibold text-slate-200 flex items-center">
                                 <i class="fa-solid fa-clock-rotate-left mr-2 text-amber-400"></i>
-                                Sewa Mendekati Jatuh Tempo
+                                Jadwal Pengembalian Terdekat
                             </h3>
                             <button onclick="switchTab('rentals')" class="text-xs text-brand-400 hover:underline">Lihat Semua</button>
                         </div>
@@ -595,7 +684,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     </div>
                     <div class="mt-4 pt-4 border-t border-slate-700/60 text-center">
                         <button onclick="openRentalModal()" class="w-full py-2 bg-slate-700/80 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition">
-                            + Buat Transaksi Penyewaan
+                            + Transaksi Sewa
                         </button>
                     </div>
                 </div>
@@ -622,7 +711,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 </div>
                 <div class="flex items-center space-x-2">
                     <button onclick="openAddItemModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center shadow-md">
-                        <i class="fa-solid fa-plus mr-2"></i> Tambah Alat & Varian
+                        <i class="fa-solid fa-plus mr-2"></i> Tambah Barang
                     </button>
                 </div>
             </div>
@@ -633,14 +722,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     <table class="w-full text-left text-sm text-slate-300">
                         <thead class="bg-slate-900/90 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700">
                             <tr>
-                                <th class="py-3.5 px-4">Nama Alat Outdoor</th>
-                                <th class="py-3.5 px-4">Kategori</th>
-                                <th class="py-3.5 px-4">Tarif Sewa /Hari</th>
-                                <th class="py-3.5 px-4">Detail Varian (Warna & Ukuran)</th>
+                                <th class="py-3.5 px-4 text-left">Nama Alat Outdoor</th>
+                                <th class="py-3.5 px-4 text-center">Kategori</th>
+                                <th class="py-3.5 px-4 text-center">Harga Sewa</th>
+                                <th class="py-3.5 px-4 text-center">Detail Varian (Warna & Ukuran)</th>
                                 <th class="py-3.5 px-4 text-center">Stok Total</th>
                                 <th class="py-3.5 px-4 text-center">Disewa</th>
                                 <th class="py-3.5 px-4 text-center">Tersedia</th>
-                                <th class="py-3.5 px-4 text-right">Aksi</th>
+                                <th class="py-3.5 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="inventory-table-body" class="divide-y divide-slate-700/50">
@@ -673,7 +762,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 <button onclick="clearAllRentalData()"
                 class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center">
                 <i class="fa-solid fa-trash-can mr-2"></i>
-                Bersihkan Semua
+                Hapus Semua Transaksi
                 </button>
             </div>
 
@@ -683,13 +772,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     <table class="w-full text-left text-sm text-slate-300">
                         <thead class="bg-slate-900/90 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700">
                             <tr>
-                                <th class="py-3.5 px-4">Kode Sewa</th>
-                                <th class="py-3.5 px-4">Nama Penyewa & Kontak</th>
-                                <th class="py-3.5 px-4">Item & Varian Alat</th>
-                                <th class="py-3.5 px-4">Periode Sewa</th>
-                                <th class="py-3.5 px-4">Total Biaya</th>
-                                <th class="py-3.5 px-4">Status</th>
-                                <th class="py-3.5 px-4 text-right">Proses / Aksi</th>
+                                <th class="py-3.5 px-4 text-left">Kode Sewa</th>
+                                <th class="py-3.5 px-4 text-center">Nama Penyewa</th>
+                                <th class="py-3.5 px-4 text-center">Daftar Barang</th>
+                                <th class="py-3.5 px-4 text-center">Periode Sewa</th>
+                                <th class="py-3.5 px-4 text-center">Total Biaya</th>
+                                <th class="py-3.5 px-4 text-center">Status</th>
+                                <th class="py-3.5 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="rentals-table-body" class="divide-y divide-slate-700/50">
@@ -718,8 +807,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                                 <th class="py-3.5 px-4">Nama Pelanggan</th>
                                 <th class="py-3.5 px-4">No. WhatsApp / HP</th>
                                 <th class="py-3.5 px-4">Kartu Identitas (Jaminan)</th>
-                                <th class="py-3.5 px-4 text-center">Total Riwayat Sewa</th>
-                                <th class="py-3.5 px-4 text-right">Total Transaksi</th>
+                                <th class="py-3.5 px-4 text-center">Total Transaksi</th>
                             </tr>
                         </thead>
                         <tbody id="customers-table-body" class="divide-y divide-slate-700/50">
@@ -802,11 +890,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Nama Alat Outdoor *</label>
-                        <input type="text" id="item-name" required placeholder="Contoh: Tenda Dome Eiger 4 Person" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+                        <input type="text" id="item-name" required placeholder="Contoh: Tenda Kap 4" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Asupkeun Ngaran Barangna')" oninput="this.setCustomValidity('')">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Kategori *</label>
-                        <select id="item-category" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+                        <select id="item-category" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Asupkeun Kategori Barangna')" oninput="this.setCustomValidity('')">
+                            <option value="" selected disabled>-- Pilih Kategori --</option>
                             <option value="Peralatan Camping">Peralatan Camping</option>
                             <option value="Peralatan Masak">Peralatan Masak</option>
                             <option value="Peralatan Pribadi">Peralatan Pribadi</option>
@@ -818,18 +907,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Harga Sewa per Hari (Rp) *</label>
-                    <input type="number" id="item-price" min="0" step="500" required placeholder="45000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+                    <input type="number" id="item-price" min="0" step="500" required placeholder="cth: 45000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Harga sewa per hari na sabaraha?')" oninput="this.setCustomValidity('')">
                 </div>
 
                 <!-- Dynamic Variant Builder (Warna & Ukuran) -->
                 <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/80 space-y-3">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h4 class="text-sm font-bold text-brand-400">Stok Varian Warna & Ukuran</h4>
-                            <p class="text-xs text-slate-400">Atur jumlah unit spesifik per kombinasi warna dan size</p>
+                            <h4 class="text-sm font-bold text-brand-400">Spesifikasi Barang</h4>
+                            <p class="text-xs text-slate-400">Atur Nama Brand, Warna, Ukuran/Kapasitas, dan Stok Barang </p>
                         </div>
                         <button type="button" onclick="addVariantRow()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                            + Tambah Varian
+                            + Tambah Brand Lain
                         </button>
                     </div>
 
@@ -859,20 +948,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Nama Penyewa *</label>
-                        <input type="text" id="rent-cust-name" required placeholder="cth: Asep Fernandes" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        <input type="text" id="rent-cust-name" required placeholder="cth: Asep Fernandes" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Ngaran nu Nyewa na Saha?')" oninput="this.setCustomValidity('')">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">No. WhatsApp / HP *</label>
-                        <input type="text" id="rent-cust-phone" id="rent-cust-phone" required minlength="10" maxlength="15" pattern="08[0-9]{8,13}" placeholder="081234567890" oninvalid="this.setCustomValidity('Masukkan nomor WhatsApp yang valid (diawali 08 dan minimal 10 digit)')"
+                        <input type="text" id="rent-cust-phone" id="rent-cust-phone" required minlength="10" maxlength="15" pattern="08[0-9]{8,13}" placeholder="081234567890" oninvalid="this.setCustomValidity('Minimal 10 angka, mimitian ku 08')"
                         oninput="this.setCustomValidity('')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Jaminan Identitas *</label>
-                        <select id="rent-cust-idtype" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
-                            <option value="KTP">KTP Asli</option>
-                            <option value="SIM">SIM Asli</option>
-                            <option value="Kartu Pelajar/Mahasiswa">Kartu Pelajar / Student Card</option>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Kartu Identitas *</label>
+                        <select id="rent-cust-idtype" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Jaminanna make naon?')" oninput="this.setCustomValidity('')">
+                            <option value="" selected disabled;">Pilih Jenis Jaminan</option>
+                            <option value="KTP">KTP</option>
+                            <option value="SIM">SIM</option>
+                            <option value="Kartu Pelajar/Mahasiswa">Kartu Pelajar</option>
                             <option value="STNK">STNK</option>
+                            <option value="BPJS">BPJS</option>
                         </select>
                     </div>
                 </div>
@@ -881,19 +972,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-900/40 p-3.5 rounded-xl border border-slate-700/60">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Tanggal Mulai Sewa *</label>
-                        <input type="date" id="rent-start-date" onchange="calculateRentalTotal()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        <input type="date" id="rent-start-date" onchange="calculateRentalTotal()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Ti tanggal sabaraha nyewa na?')" oninput="this.setCustomValidity('')">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Tanggal Pengembalian *</label>
-                        <input type="date" id="rent-end-date" onchange="calculateRentalTotal()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        <input type="date" id="rent-end-date" onchange="calculateRentalTotal()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Nepi ka tanggal sabaraha?')" oninput="this.setCustomValidity('')">
                     </div>
                 </div>
 
                 <!-- Select Gear & Specific Variant -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Item Alat & Varian Terpilih</label>
-                        <button type="button" onclick="addRentalItemRow()" class="text-xs text-brand-400 hover:underline font-semibold">+ Tambah Item Lain</button>
+                        <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Pilih Barang</label>
+                        <button type="button" onclick="addRentalItemRow()" class="text-xs text-brand-400 hover:underline font-semibold">+ Tambah Barang Lain</button>
                     </div>
                     
                     <div id="rental-items-cart" class="space-y-2">
@@ -968,7 +1059,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
     <script>
-        // ==========================================
+         // ==========================================
         // INITIAL DATA & APP STATE
         // ==========================================
         const DEFAULT_INVENTORY = [];
@@ -985,55 +1076,97 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
         // Initialize App on DOM Load
         window.addEventListener('DOMContentLoaded', async () => {
-            const today = new Date().toISOString().split('T')[0];
-            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-            document.getElementById('rent-start-date').value = today;
-            document.getElementById('rent-end-date').value = tomorrow;
+            flatpickr("#rent-start-date", {
+                locale: "id",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y",
+                defaultDate: "today"
+            });
+
+            flatpickr("#rent-end-date", {
+                locale: "id",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y",
+                defaultDate: new Date(Date.now() + 86400000)
+            });
 
             if (state.appscriptUrl) {
                 document.getElementById('appscript-url').value = state.appscriptUrl || WEB_APP_URL;
             }
 
-            saveStateToLocalStorage();
-
-            await loadDataFromAppsScript();
-
+            // tampilkan data lokal dulu (instan)
             renderAllViews();
 
-            // buka tab terakhir setelah refresh
+            // buka tab terakhir
             const lastTab = localStorage.getItem('trekout_active_tab') || 'dashboard';
             switchTab(lastTab);
+
+            // baru sinkron di background
+            if (state.appscriptUrl) {
+                loadDataFromAppsScript();
+            }
         });
 
         function saveStateToLocalStorage() {
             localStorage.setItem('trekout_inventory', JSON.stringify(state.inventory));
             localStorage.setItem('trekout_rentals', JSON.stringify(state.rentals));
         }
+        function saveAndRender() {
+            saveStateToLocalStorage();
+            renderAllViews();
+        }
 
         // ==========================================
         // NAVIGATION & TAB SWITCHING
         // ==========================================
         function switchTab(tabName) {
+
             localStorage.setItem('trekout_active_tab', tabName);
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+
+            document.querySelectorAll('.tab-content').forEach(el =>
+                el.classList.add('hidden')
+            );
+
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('text-brand-400', 'bg-slate-800', 'border', 'border-slate-700');
+                btn.classList.remove(
+                    'text-brand-400',
+                    'bg-slate-800',
+                    'border',
+                    'border-slate-700'
+                );
                 btn.classList.add('text-slate-400');
             });
 
-            const activeContent = document.getElementById(`view-${tabName}`);
-            const activeNav = document.getElementById(`nav-${tabName}`);
-            if (activeContent) activeContent.classList.remove('hidden');
-            if (activeNav) {
-                activeNav.classList.remove('text-slate-400');
-                activeNav.classList.add('text-brand-400', 'bg-slate-800', 'border', 'border-slate-700');
-            }
+            document.getElementById(`view-${tabName}`)?.classList.remove('hidden');
 
-            // Refresh specific tab logic
-            if (tabName === 'dashboard') renderDashboard();
-            if (tabName === 'inventory') renderInventoryTable();
-            if (tabName === 'rentals') renderRentalsTable();
-            if (tabName === 'customers') renderCustomerTable();
+            document.getElementById(`nav-${tabName}`)?.classList.add(
+                'text-brand-400',
+                'bg-slate-800',
+                'border',
+                'border-slate-700'
+            );
+
+            document.getElementById(`nav-${tabName}`)?.classList.remove('text-slate-400');
+
+            switch (tabName) {
+                case 'dashboard':
+                    renderDashboard();
+                    break;
+
+                case 'inventory':
+                    renderInventoryTable();
+                    break;
+
+                case 'rentals':
+                    renderRentalsTable();
+                    break;
+
+                case 'customers':
+                    renderCustomerTable();
+                    break;
+            }
         }
 
         // ==========================================
@@ -1119,8 +1252,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             const dataValues = Object.values(catMap);
 
             if (categoryChartInstance) {
-                categoryChartInstance.destroy();
+                categoryChartInstance.data.labels = labels;
+                categoryChartInstance.data.datasets[0].data = dataValues;
+                categoryChartInstance.update();
+
+                return;
             }
+
 
             categoryChartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -1130,7 +1268,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         label: 'Total Unit Stok',
                         data: dataValues,
                         backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                        borderColor: '#10b981',
+                        borderColor: 'rgba(120,183,216,.8)',
                         borderWidth: 1.5,
                         borderRadius: 6
                     }]
@@ -1233,15 +1371,32 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         }
 
         // Open Add Item Modal & Dynamic Variants
+        const CATEGORY_OPTIONS = [
+            "Peralatan Camping",
+            "Peralatan Masak",
+            "Peralatan Pribadi",
+            "Peralatan Santai",
+            "Tas & Carrier"
+        ];
         function openAddItemModal() {
             document.getElementById('form-item').reset();
             document.getElementById('item-id').value = '';
             document.getElementById('modal-item-title').textContent = 'Tambah Alat Outdoor Baru';
             document.getElementById('variant-list-container').innerHTML = '';
-            
+
+            // Generate kategori
+            const categorySelect = document.getElementById('item-category');
+
+            categorySelect.innerHTML = `
+                <option value="" selected disabled>Pilih kategori...</option>
+                ${CATEGORY_OPTIONS.map(cat =>
+                    `<option value="${cat}">${cat}</option>`
+                ).join('')}
+            `;
+
             // Add default variant row
-            addVariantRow('Hitam', 'Standard', 1);
-            
+            addVariantRow('', '', 1);
+
             document.getElementById('modal-add-item').classList.remove('hidden');
         }
 
@@ -1254,13 +1409,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             div.className = "flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800";
             div.innerHTML = `
                 <div class="flex-1">
-                    <input type="text" placeholder="Warna (e.g. Merah)" value="${color}" required class="v-color w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                    <input type="text" placeholder="contoh: Arei" value="${color}" required class="v-color w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Eusian Merek Barangna')" oninput="this.setCustomValidity('')">
                 </div>
                 <div class="w-28">
-                    <input type="text" placeholder="Ukuran/Size" value="${size}" required class="v-size w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                    <input type="text" placeholder="cth: Hitam - L" value="${size}" required class="v-size w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Eusian Warna jeung Ukuranna')" oninput="this.setCustomValidity('')">
                 </div>
                 <div class="w-20">
-                    <input type="number" min="1" placeholder="Jumlah" value="${total}" required class="v-total w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white text-center focus:outline-none focus:border-brand-500">
+                    <input type="number" min="1" placeholder="Jumlah" value="${total}" required class="v-total w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white text-center focus:outline-none focus:border-brand-500" oninvalid="this.setCustomValidity('Eusian Stokna')" oninput="this.setCustomValidity('')">
                 </div>
                 <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-slate-500 hover:text-red-400 px-2 py-1 text-xs">
                     <i class="fa-solid fa-trash-can"></i>
@@ -1317,7 +1472,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 }
             } else {
                 // Add New
-                const newId = 'TREK-' + String(Date.now()).slice(-4);
+                const newId = 'INV-' + String(Date.now()).slice(-4);
                 state.inventory.push({
                     id: newId,
                     name,
@@ -1330,8 +1485,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
             saveStateToLocalStorage();
             closeModal('modal-add-item');
-            renderAllViews();
-            await triggerSyncToAppsScript();
+
+            // render yang diperlukan aja
+            renderInventoryTable();
+            renderDashboard();
+
+            // sync di background
+            triggerSyncToAppsScript().catch(console.error);
         }
 
         function editItem(id) {
@@ -1354,12 +1514,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         }
 
         async function deleteItem(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus alat ini dari daftar stok?')) {
+            if (confirm('Nyaan dek ngahapus barang nu ieu?')) {
                 state.inventory = state.inventory.filter(i => i.id !== id);
                 saveStateToLocalStorage();
-                renderAllViews();
+                // render yang diperlukan aja
+                renderInventoryTable();
+                renderDashboard();
+
                 showToast('Item berhasil dihapus.', 'info');
-                await triggerSyncToAppsScript();
+
+                // sync background
+                triggerSyncToAppsScript().catch(console.error);
             }
         }
 
@@ -1474,10 +1639,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             document.getElementById('form-rental').reset();
             document.getElementById('rental-items-cart').innerHTML = '';
             
-            const today = new Date().toISOString().split('T')[0];
-            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-            document.getElementById('rent-start-date').value = today;
-            document.getElementById('rent-end-date').value = tomorrow;
+            document.getElementById("rent-start-date")._flatpickr.setDate(new Date());
+
+            document.getElementById("rent-end-date")._flatpickr.setDate(
+                new Date(Date.now() + 86400000)
+            );
 
             // Add first item selection row
             addRentalItemRow();
@@ -1495,7 +1661,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             div.className = "flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-900 p-3 rounded-xl border border-slate-800";
 
             // Generate options for Inventory Items
-            let gearOptions = state.inventory.map(item => `<option value="${item.id}">${item.name} - Rp ${item.pricePerDay.toLocaleString('id-ID')}/hr</option>`).join('');
+            let gearOptions = `
+                <option value="">-- Pilih Barang --</option>
+            `;
+
+            gearOptions += state.inventory.map(item =>
+                `<option value="${item.id}">
+                    ${item.name} : Rp ${item.pricePerDay.toLocaleString('id-ID')}/hr
+                </option>`
+            ).join('');
 
             div.innerHTML = `
                 <div class="flex-1">
@@ -1517,6 +1691,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             `;
 
             container.appendChild(div);
+            const select = div.querySelector('.item-select');
+
+            new TomSelect(select, {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Cari barang...",
+                maxOptions: 200,
+                closeAfterSelect: true,
+                onChange: function () {
+                    updateVariantOptions(rowId);
+                    calculateRentalTotal();
+                }
+            });
             updateVariantOptions(rowId);
         }
 
@@ -1524,19 +1714,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             const row = document.getElementById(rowId);
             if (!row) return;
 
-            const itemId = row.querySelector('.item-select').value;
+            const itemSelect = row.querySelector('.item-select');
+            const itemId = itemSelect.tomselect
+                ? itemSelect.tomselect.getValue()
+                : itemSelect.value;
             const variantSelect = row.querySelector('.variant-select');
             const item = state.inventory.find(i => i.id === itemId);
 
             if (!item || !item.variants) {
-                variantSelect.innerHTML = `<option value="">Tidak ada varian</option>`;
+                variantSelect.innerHTML = `<option value="">Pilih Jenis Barang</option>`;
                 return;
             }
 
             variantSelect.innerHTML = item.variants.map((v, idx) => {
                 let avail = Number(v.total) - Number(v.rented);
                 let disabled = avail <= 0 ? 'disabled' : '';
-                return `<option value="${idx}" ${disabled}>Warna: ${v.color} | Size: ${v.size} (Stok: ${avail})</option>`;
+                return `<option value="${idx}" ${disabled}>Merek: ${v.color} | Warna/Ukuran: ${v.size} (Stok: ${avail})</option>`;
             }).join('');
         }
 
@@ -1593,10 +1786,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
             const itemsToRent = [];
             let totalAmount = 0;
+            const inventoryMap = Object.fromEntries(
+                state.inventory.map(item => [item.id, item])
+            );
 
             // Check stock availability and update inventory rented count
             for (let row of cartRows) {
-                const itemId = row.querySelector('.item-select').value;
+                const itemSelect = row.querySelector('.item-select');
+                const itemId = itemSelect.tomselect
+                    ? itemSelect.tomselect.getValue()
+                    : itemSelect.value;
                 const variantIdx = row.querySelector('.variant-select').value;
                 const qty = Number(row.querySelector('.item-qty').value);
 
@@ -1605,7 +1804,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     return;
                 }
 
-                const invItem = state.inventory.find(i => i.id === itemId);
+                const invItem = inventoryMap[itemId];
                 const variant = invItem.variants[variantIdx];
 
                 let avail = Number(variant.total) - Number(variant.rented);
@@ -1647,11 +1846,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             };
 
             state.rentals.unshift(newRental);
+
             saveStateToLocalStorage();
+
             closeModal('modal-add-rental');
-            renderAllViews();
+
+            // render yang dibutuhkan saja
+            renderDashboard();
+            renderInventoryTable();
+            renderRentalsTable();
+            renderCustomerTable();
+
             showToast('Transaksi penyewaan berhasil diproses!', 'success');
-            await triggerSyncToAppsScript();
+
+            // sync di background
+            triggerSyncToAppsScript().catch(console.error);
         }
 
         // Return Process Logic
@@ -1681,10 +1890,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
             const rental = state.rentals.find(r => r.id === rentalId);
             if (!rental) return;
+            const inventoryMap = Object.fromEntries(
+                state.inventory.map(item => [item.id, item])
+            );
 
             // Return items back to available inventory stock
             rental.items.forEach(itemRented => {
-                const invItem = state.inventory.find(i => i.id === itemRented.itemId);
+                const invItem = inventoryMap[itemRented.itemId];
                 if (invItem) {
                     const variant = invItem.variants.find(v => v.color === itemRented.color && v.size === itemRented.size);
                     if (variant) {
@@ -1698,10 +1910,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             rental.fine = fine;
 
             saveStateToLocalStorage();
+
             closeModal('modal-return-rental');
-            renderAllViews();
+
+            // render yang diperlukan
+            renderDashboard();
+            renderInventoryTable();
+            renderRentalsTable();
+            renderCustomerTable();
+
             showToast('Pengembalian barang berhasil diproses dan stok dikembalikan!', 'success');
-            await triggerSyncToAppsScript();
+
+            // sync background
+            triggerSyncToAppsScript().catch(console.error);
         }
 
         // ==========================================
@@ -1712,24 +1933,29 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             const tbody = document.getElementById('customers-table-body');
 
             // Aggregate customers from rental history
-            const customerMap = {};
-            state.rentals.forEach(r => {
-                const key = r.phone;
-                if (!customerMap[key]) {
-                    customerMap[key] = {
+            const customerMap = new Map();
+
+            for (const r of state.rentals) {
+                let customer = customerMap.get(r.phone);
+
+                if (!customer) {
+                    customer = {
                         name: r.customerName,
                         phone: r.phone,
                         idType: r.idType,
                         rentalCount: 0,
                         totalSpent: 0
                     };
+                    customerMap.set(r.phone, customer);
                 }
-                customerMap[key].rentalCount += 1;
-                customerMap[key].totalSpent += Number(r.totalAmount || 0);
-            });
 
-            const customersList = Object.values(customerMap).filter(c => 
-                c.name.toLowerCase().includes(searchQuery) || c.phone.toLowerCase().includes(searchQuery)
+                customer.rentalCount++;
+                customer.totalSpent += Number(r.totalAmount || 0);
+            }
+
+            const customersList = [...customerMap.values()].filter(c =>
+                c.name.toLowerCase().includes(searchQuery) ||
+                c.phone.toLowerCase().includes(searchQuery)
             );
 
             if (customersList.length === 0) {
@@ -1748,8 +1974,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     <td class="py-3.5 px-4 font-semibold text-slate-100">${c.name}</td>
                     <td class="py-3.5 px-4 text-slate-300">${c.phone}</td>
                     <td class="py-3.5 px-4"><span class="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-md text-xs text-slate-300">${c.idType}</span></td>
-                    <td class="py-3.5 px-4 text-center font-bold text-slate-200">${c.rentalCount} kali</td>
-                    <td class="py-3.5 px-4 text-right font-bold text-brand-400">Rp ${c.totalSpent.toLocaleString('id-ID')}</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-brand-400">Rp ${c.totalSpent.toLocaleString('id-ID')}</td>
                 </tr>
             `).join('');
         }
@@ -1758,7 +1983,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         // APPS SCRIPT SYNC & UTILS
         // ==========================================
         async function saveAppsScriptUrl() {
-            // ambil URL dari input, kalau kosong pakai WEB_APP_URL bawaan
             const url = document.getElementById('appscript-url').value.trim() || WEB_APP_URL;
 
             state.appscriptUrl = url;
@@ -1766,46 +1990,40 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
             showToast('URL Google Apps Script berhasil disimpan!', 'success');
 
-            // langsung sync setelah disimpan
-            await triggerSyncToAppsScript();
+            triggerSyncToAppsScript();
         }
 
         async function triggerSyncToAppsScript() {
-        const syncUrl = state.appscriptUrl || WEB_APP_URL;
+            const syncUrl = state.appscriptUrl || WEB_APP_URL;
 
-        if (!syncUrl) return;
+            if (!syncUrl) return;
 
-        try {
-            const response = await fetch(syncUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8'
-                },
-                body: JSON.stringify({
-                    action: 'SYNC_SAVE_ALL',
-                    inventory: state.inventory,
-                    rentals: state.rentals
-                })
-            });
+            try {
+                const response = await fetch(syncUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        action: 'SYNC_SAVE_ALL',
+                        inventory: state.inventory,
+                        rentals: state.rentals
+                    })
+                });
 
-            const text = await response.text();
-            console.log('APPS SCRIPT RESPONSE:', text);
+                const result = await response.json();
 
-            const result = JSON.parse(text);
+                if (result.status === 'success') {
+                    console.log("Sync berhasil");
+                } else {
+                    console.warn(result.message);
+                }
 
-            if (result.status === 'success') {
-                await loadDataFromAppsScript();
-                showToast('Data berhasil tersinkron ke Google Sheets!', 'success');
-            } else {
-                showToast('Sync gagal: ' + result.message, 'warning');
+            } catch (err) {
+                console.error(err);
             }
-
-        } catch (err) {
-            console.error('Apps Script Sync Error:', err);
-            showToast('Tidak bisa terhubung ke Google Sheets', 'warning');
         }
-    }
-        async function loadDataFromAppsScript() {
+                async function loadDataFromAppsScript() {
 
             const syncUrl = state.appscriptUrl || WEB_APP_URL;
 
@@ -1826,13 +2044,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 const result = await response.json();
 
                 if (result.status === "success") {
-
                     state.inventory = result.inventory || [];
                     state.rentals = result.rentals || [];
 
                     saveStateToLocalStorage();
-
-                    renderAllViews();
 
                 }
 
@@ -1911,27 +2126,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       document.getElementById('code-gs-container').textContent = APPS_SCRIPT_CODE;
     });
     async function clearAllRentalData() {
-    if (!confirm('Hapus SEMUA transaksi sewa dan data penyewa?')) return;
+    if (!confirm('Nyaan dek dihapus kabeh?')) return;
 
     // Kosongkan semua transaksi
     state.rentals = [];
 
     // Simpan perubahan
     saveStateToLocalStorage();
-    await loadDataFromAppsScript();
-    // Refresh tampilan
+
     renderAllViews();
 
-    // Sync ke Google Sheets
-    await triggerSyncToAppsScript();
+    triggerSyncToAppsScript();
 
     showToast('Semua transaksi dan data penyewa berhasil dibersihkan!', 'success');
-}
+    }
 async function deleteRental(rentalId) {
     const rental = state.rentals.find(r => r.id === rentalId);
     if (!rental) return;
 
-    if (!confirm('Hapus transaksi ini?')) return;
+    if (!confirm('Nyaan nu eta dek dihapus?')) return;
 
     // Kembalikan stok jika transaksi masih aktif
     if (rental.status === 'Aktif') {
@@ -1953,9 +2166,10 @@ async function deleteRental(rentalId) {
 
     saveStateToLocalStorage();
     renderAllViews();
-    await triggerSyncToAppsScript();
 
     showToast('Transaksi berhasil dihapus.', 'success');
+
+    triggerSyncToAppsScript();
 }
 
 function printReceipt(rentalId) {
@@ -1964,9 +2178,12 @@ function printReceipt(rentalId) {
 
     const itemsHtml = rental.items.map(item => `
         <tr>
-            <td style="padding:4px 0;">
-                <strong>${item.name}</strong><br>
-                ${item.color}/${item.size} x${item.qty}
+            <td style="padding:4px 0; width:55%;">
+                ${item.name}<br>
+                <span style="margin-left: 5px;font-size: 8px;">${item.color}/${item.size}</span>
+            </td>
+            <td style="width:10%;">
+                x${item.qty}
             </td>
             <td style="text-align:right;">
                 Rp ${(item.price * item.qty * rental.days).toLocaleString('id-ID')}
@@ -1979,40 +2196,63 @@ function printReceipt(rentalId) {
     <head>
         <title>Nota ${rental.id}</title>
         <style>
-            @page {
-                size: 80mm auto;
-                margin: 0;
-            }
+        @page {
+            size: 58mm auto;
+            margin: 0;
+        }
 
-            body {
-                width: 80mm;
-                margin: 0 auto;
-                padding: 18px;
-                font-family: Arial, sans-serif;
-                font-size: 13px;
-                line-height: 1.5;
-                color: #000;
-                box-sizing: border-box;
-            }
+        html, body {
+            width: 58mm;
+            margin: 0 auto;
+            padding: 0;
+        }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 12px;
-            }
+        body {
+            width: 58mm;
+            padding: 4mm;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.35;
+            color: #000;
+            box-sizing: border-box;
+        }
 
-            td {
-                vertical-align: top;
-            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 11px;
+        }
+
+        td {
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        hr{
+            border:none;
+            border-top:1px dashed #000;
+            margin:6px 0;
+        }
+
+        img{
+            max-width:100%;
+        }
         </style>
     </head>
     <body>
-
+        <div style="text-align:center;margin-bottom:8px;">
+            <img
+                src="trekout-logo.png"
+                style="width:55PX;height:55px;object-fit:contain;"
+            >
+        </div>
         <div style="text-align:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:bold;">
-                TREK-OUT ADVENTURE
+            <div style="font-size:12px;font-weight:bold;">
+                TREK-OUT<br>ADVENTURE
             </div>
-            <div style="font-size:11px;">
+            <div style="font-size:10px;">
                 Kp. Gudang, Balewangi<br>
                 Garut, Jawa Barat<br>
                 0813-1261-7176
@@ -2021,27 +2261,47 @@ function printReceipt(rentalId) {
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:10px;">
             <span><strong>TANGGAL</strong></span>
             <span>${new Date().toLocaleDateString('id-ID')}</span>
         </div>
 
-        <div style="margin-bottom:10px;">
-            <strong>${rental.customerName}</strong><br>
-            ${rental.phone}<br>
-            Sewa: ${new Date(rental.startDate).toLocaleDateString('id-ID')} s/d ${new Date(rental.endDate).toLocaleDateString('id-ID')}<br>
-            Durasi: ${rental.days} Hari
-        </div>
+        <table style="width:100%; margin-bottom:10px; font-size:10px;">
+            <tr>
+                <td style="width:42px;">Nama</td>
+                <td style="width:6px;">:</td>
+                <td><strong>${rental.customerName}</strong></td>
+            </tr>
+            <tr>
+                <td>No. HP</td>
+                <td>:</td>
+                <td>0${rental.phone}</td>
+            </tr>
+            <tr>
+                <td>Sewa</td>
+                <td>:</td>
+                <td>
+                    ${new Date(rental.startDate).toLocaleDateString('id-ID')}
+                    s/d
+                    ${new Date(rental.endDate).toLocaleDateString('id-ID')}
+                </td>
+            </tr>
+            <tr>
+                <td>Durasi</td>
+                <td>:</td>
+                <td>${rental.days} Hari</td>
+            </tr>
+        </table>
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <table>
+        <table style="font-size: 10px;">
             ${itemsHtml}
         </table>
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <table style="font-size:13px;">
+        <table style="font-size:12px;font-weight:bold;">
             <tr>
                 <td><strong>TOTAL</strong></td>
                 <td style="text-align:right;font-weight:bold;">
@@ -2050,19 +2310,17 @@ function printReceipt(rentalId) {
             </tr>
         </table>
 
-        <div style="text-align:center;margin-top:18px;font-size:11px;">
+        <div style="text-align:center;margin-top:14px;font-size:9px;line-height:1.4;">
             <br>
+            Terima kasih atas kepercayaannya.
             <br>
-            Terima kasih telah mempercayakan
-            <br>perjalanan outdoor Anda kepada kami.
-            <br><br>
-            Bantu kami berkembang dengan memberikan
-            <br>ulasan di Google Maps.
+            Bantu kami berkembang dengan
+            <br>memberikan ulasan di Google Maps.
         </div>
 
-        <div style="text-align:center;margin-top:18px;font-size:11px;">
+        <div style="text-align:center;margin-top:14px;font-size:9px;line-height:1.4;">
             ────────────────────────────────
-            <br>Powered by <strong>Trek-Out App v1.0</strong>
+            <br>Powered by <strong>TrekOut App v1.0</strong>
             <br>Developed by <strong>Tedi Firdaus</strong>
             <br>────────────────────────────────
         </div>
@@ -2118,9 +2376,12 @@ async function downloadReceiptImage(rentalId) {
     `;
 
     receipt.innerHTML = `
+        </div>
         <div style="text-align:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:bold;">TREK-OUT ADVENTURE</div>
-            <div style="font-size:11px;">
+            <div style="font-size:12px;font-weight:bold;">
+                TREK-OUT<br>ADVENTURE
+            </div>
+            <div style="font-size:10px;">
                 Kp. Gudang, Balewangi<br>
                 Garut, Jawa Barat<br>
                 0813-1261-7176
@@ -2129,55 +2390,66 @@ async function downloadReceiptImage(rentalId) {
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:10px;">
             <span><strong>TANGGAL</strong></span>
             <span>${new Date().toLocaleDateString('id-ID')}</span>
         </div>
 
-        <div style="margin-bottom:10px;">
-            <strong>${rental.customerName}</strong><br>
-            ${rental.phone}<br>
-            Sewa: ${new Date(rental.startDate).toLocaleDateString('id-ID')} s/d ${new Date(rental.endDate).toLocaleDateString('id-ID')}<br>
-            Durasi: ${rental.days} Hari
-        </div>
+        <table style="width:100%; margin-bottom:10px; font-size:10px;">
+            <tr>
+                <td style="width:42px;">Nama</td>
+                <td style="width:6px;">:</td>
+                <td><strong>${rental.customerName}</strong></td>
+            </tr>
+            <tr>
+                <td>No. HP</td>
+                <td>:</td>
+                <td>0${rental.phone}</td>
+            </tr>
+            <tr>
+                <td>Sewa</td>
+                <td>:</td>
+                <td>
+                    ${new Date(rental.startDate).toLocaleDateString('id-ID')}
+                    s/d
+                    ${new Date(rental.endDate).toLocaleDateString('id-ID')}
+                </td>
+            </tr>
+            <tr>
+                <td>Durasi</td>
+                <td>:</td>
+                <td>${rental.days} Hari</td>
+            </tr>
+        </table>
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <table style="font-size: 10px;">
             ${itemsHtml}
         </table>
 
         <hr style="border:none;border-top:1px dashed #000;margin:10px 0;">
 
-        <table style="width:100%;font-size:13px;">
+        <table style="font-size:12px;font-weight:bold;">
             <tr>
-                <td>
-                    <strong>TOTAL</strong>
-                </td>
-
-                <td style="
-                    text-align:right;
-                    font-weight:bold;
-                    white-space:nowrap;
-                ">
-                    Rp ${Number(rental.totalAmount || 0).toLocaleString('id-ID')}
+                <td><strong>TOTAL</strong></td>
+                <td style="text-align:right;font-weight:bold;">
+                    Rp ${rental.totalAmount.toLocaleString('id-ID')}
                 </td>
             </tr>
         </table>
 
-        <div style="text-align:center;margin-top:18px;font-size:11px;">
+        <div style="text-align:center;margin-top:14px;font-size:9px;line-height:1.4;">
             <br>
+            Terima kasih atas kepercayaannya.
             <br>
-            Terima kasih telah mempercayakan
-            <br>perjalanan outdoor Anda kepada kami.
-            <br><br>
-            Bantu kami berkembang dengan memberikan
-            <br>ulasan di Google Maps.
+            Bantu kami berkembang dengan
+            <br>memberikan ulasan di Google Maps.
         </div>
 
-        <div style="text-align:center;margin-top:18px;font-size:11px;">
+        <div style="text-align:center;margin-top:14px;font-size:9px;line-height:1.4;">
             ────────────────────────────────
-            <br>Powered by <strong>Trek-Out App v1.0</strong>
+            <br>Powered by <strong>TrekOut App v1.0</strong>
             <br>Developed by <strong>Tedi Firdaus</strong>
             <br>────────────────────────────────
         </div>
@@ -2217,17 +2489,24 @@ async function downloadReceiptImage(rentalId) {
         document.body.removeChild(receipt);
     }
 }
-setInterval(async () => {
+document.addEventListener("visibilitychange", async () => {
+    if (!document.hidden) {
+        await loadDataFromAppsScript();
 
-    await loadDataFromAppsScript();
+        renderDashboard();
+        renderInventoryTable();
+        renderRentalsTable();
+        renderCustomerTable();
+    }
+});
 
-}, 1000);
+
 
     </script>
 
 <!-- Developer Watermark -->
 <div class="developer-watermark">
-    Trek-Out App v1.0 • Developed by <strong>Tedi Firdaus</strong>
+    TrekOut IMS v1.0 • Developed by <strong>Tedi Firdaus</strong>
 </div>
 
 </body>
