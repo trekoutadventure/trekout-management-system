@@ -20,37 +20,7 @@
     <script>
     // ===================== [TAMBAHKAN DI SINI] =====================
     // GANTI DENGAN URL WEB APP APPS SCRIPT LU
-        <!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import {
-    getDatabase,
-    ref,
-    set,
-    get,
-    onValue
-  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDniLecK_FhRBQ-ZMz_Uy1FoLgeXR19F-8",
-    authDomain: "trek-out-adventure.firebaseapp.com",
-    projectId: "trek-out-adventure",
-    storageBucket: "trek-out-adventure.firebasestorage.app",
-    messagingSenderId: "36234346615",
-    appId: "1:36234346615:web:0ab06fe6a3c2b0b8cfc672",
-    measurementId: "G-7KKBEB43FP"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // biar bisa dipakai di script lain
-  window.firebaseDB = db;
-  window.firebaseRef = ref;
-  window.firebaseSet = set;
-  window.firebaseGet = get;
-  window.firebaseOnValue = onValue;
-</script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbznansIjljYtRVFPIS4KJYwse5M-dOXT-xXFFNKTQKeMRIBgAH9ZPA2T1jNzSYiEwla/exec';
     // ===============================================================
     tailwind.config = {
       theme: {
@@ -848,6 +818,63 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             </div>
         </section>
 
+        <!-- SCRIPT SYNC VIEW -->
+        <section id="view-script-sync" class="tab-content space-y-6 hidden">
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100 flex items-center">
+                        <i class="fa-brands fa-google text-emerald-400 mr-3 text-2xl"></i>
+                        Integrasi Backend Google Apps Script & Google Sheets
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Aplikasi ini dapat berjalan secara mandiri (Local Mode) maupun tersambung secara live ke **Google Sheets** menggunakan Google Apps Script Web App.
+                    </p>
+                </div>
+
+                <!-- Web App URL Setting -->
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-3">
+                    <label class="block text-sm font-semibold text-slate-200">
+                        URL Web App Google Apps Script (Opsional untuk Sync Database):
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="url" id="appscript-url" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="flex-1 px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-brand-500 text-slate-100">
+                        <button onclick="saveAppsScriptUrl()" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition">
+                            Simpan URL
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-400">
+                        *Jika URL belum diisi, aplikasi akan menggunakan mode penyimpanan **Browser Storage** sehingga Anda tetap bisa langsung mencobanya!
+                    </p>
+                </div>
+
+                <!-- Code snippet for Code.gs -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-slate-200">
+                            Kode Script Google Apps Script (<code class="text-brand-400">Code.gs</code>)
+                        </h3>
+                        <button onclick="copyAppsScriptCode()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg flex items-center">
+                            <i class="fa-regular fa-copy mr-1.5"></i> Salin Kode Script
+                        </button>
+                    </div>
+                    <pre id="code-gs-container" class="bg-slate-950 p-4 rounded-xl text-xs text-slate-300 font-mono overflow-x-auto border border-slate-800 max-h-80 leading-relaxed"></pre>
+                </div>
+
+                <!-- Langkah tutorial singkat -->
+                <div class="border-t border-slate-700/60 pt-4 space-y-2">
+                    <h4 class="text-sm font-semibold text-slate-200">Cara Memasang di Google Spreadsheet Anda:</h4>
+                    <ol class="list-decimal list-inside text-xs text-slate-400 space-y-1">
+                        <li>Buka Google Spreadsheet baru di Google Drive Anda.</li>
+                        <li>Klik menu <strong>Ekstensi &gt; Apps Script</strong>.</li>
+                        <li>Hapus seluruh isi <code class="text-emerald-400">Code.gs</code> dan paste kode di atas.</li>
+                        <li>Klik **Deploy &gt; Web app baru (New deployment)**.</li>
+                        <li>Pilih **Execute as: Me** dan **Who has access: Anyone**.</li>
+                        <li>Salin URL Web App hasil deploy, lalu tempelkan pada kolom URL di atas!</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- MODAL: ADD / EDIT GEAR ITEM -->
@@ -1071,61 +1098,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
             // tampilkan data lokal dulu (instan)
             renderAllViews();
-            await loadDataFromFirebase();
 
-            listenRealtimeData();
             // buka tab terakhir
             const lastTab = localStorage.getItem('trekout_active_tab') || 'dashboard';
             switchTab(lastTab);
 
-        
+            // baru sinkron di background
+            if (state.appscriptUrl) {
+                loadDataFromAppsScript();
+            }
         });
 
-        async function saveStateToFirebase() {
-    try {
-        await firebaseSet(firebaseRef(firebaseDB, 'inventory'), state.inventory);
-        await firebaseSet(firebaseRef(firebaseDB, 'rentals'), state.rentals);
-
-        // optional backup lokal
-        localStorage.setItem('trekout_inventory', JSON.stringify(state.inventory));
-        localStorage.setItem('trekout_rentals', JSON.stringify(state.rentals));
-
-        console.log('Firebase tersimpan');
-    } catch (err) {
-        console.error('Gagal simpan Firebase:', err);
-    }
-}
-        async function loadDataFromFirebase() {
-    try {
-        const invSnap = await firebaseGet(firebaseRef(firebaseDB, 'inventory'));
-        const rentSnap = await firebaseGet(firebaseRef(firebaseDB, 'rentals'));
-
-        state.inventory = invSnap.exists() ? invSnap.val() : [];
-        state.rentals = rentSnap.exists() ? rentSnap.val() : [];
-
-        renderAllViews();
-
-    } catch (err) {
-        console.error('Gagal load Firebase:', err);
-    }
-}
-
-        function listenRealtimeData() {
-    firebaseOnValue(firebaseRef(firebaseDB, 'inventory'), (snapshot) => {
-        state.inventory = snapshot.val() || [];
-        renderInventoryTable();
-        renderDashboard();
-    });
-
-    firebaseOnValue(firebaseRef(firebaseDB, 'rentals'), (snapshot) => {
-        state.rentals = snapshot.val() || [];
-        renderRentalsTable();
-        renderDashboard();
-        renderCustomerTable();
-    });
-}
+        function saveStateToLocalStorage() {
+            localStorage.setItem('trekout_inventory', JSON.stringify(state.inventory));
+            localStorage.setItem('trekout_rentals', JSON.stringify(state.rentals));
+        }
         function saveAndRender() {
-            await saveStateToFirebase();
+            saveStateToLocalStorage();
             renderAllViews();
         }
 
@@ -1503,7 +1492,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 showToast('Alat outdoor baru berhasil ditambahkan.', 'success');
             }
 
-            await saveStateToFirebase();
+            saveStateToLocalStorage();
             closeModal('modal-add-item');
 
             // render yang diperlukan aja
@@ -1536,7 +1525,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         async function deleteItem(id) {
             if (confirm('Nyaan dek ngahapus barang nu ieu?')) {
                 state.inventory = state.inventory.filter(i => i.id !== id);
-                await saveStateToFirebase();
+                saveStateToLocalStorage();
                 // render yang diperlukan aja
                 renderInventoryTable();
                 renderDashboard();
@@ -1867,7 +1856,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
             state.rentals.unshift(newRental);
 
-            await saveStateToFirebase();
+            saveStateToLocalStorage();
 
             closeModal('modal-add-rental');
 
@@ -1929,7 +1918,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             rental.returnCondition = condition;
             rental.fine = fine;
 
-            await saveStateToFirebase();
+            saveStateToLocalStorage();
 
             closeModal('modal-return-rental');
 
@@ -1999,6 +1988,38 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             `).join('');
         }
 
+        // ==========================================
+        // APPS SCRIPT SYNC & UTILS
+        // ==========================================
+        async function saveAppsScriptUrl() {
+            const url = document.getElementById('appscript-url').value.trim() || WEB_APP_URL;
+
+            state.appscriptUrl = url;
+            localStorage.setItem('trekout_appscript_url', url);
+
+            showToast('URL Google Apps Script berhasil disimpan!', 'success');
+
+            triggerSyncToAppsScript();
+        }
+
+        async function triggerSyncToAppsScript() {
+            const syncUrl = state.appscriptUrl || WEB_APP_URL;
+
+            if (!syncUrl) return;
+
+            try {
+                const response = await fetch(syncUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        action: 'SYNC_SAVE_ALL',
+                        inventory: state.inventory,
+                        rentals: state.rentals
+                    })
+                });
+
                 const result = await response.json();
 
                 if (result.status === 'success') {
@@ -2011,7 +2032,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 console.error(err);
             }
         }
+                async function loadDataFromAppsScript() {
 
+            const syncUrl = state.appscriptUrl || WEB_APP_URL;
+
+            if (!syncUrl) return;
+
+            try {
+
+                const response = await fetch(syncUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        action: "LOAD_ALL"
+                    })
+                });
 
                 const result = await response.json();
 
@@ -2019,7 +2056,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     state.inventory = result.inventory || [];
                     state.rentals = result.rentals || [];
 
-                    await saveStateToFirebase();
+                    saveStateToLocalStorage();
 
                 }
 
@@ -2030,6 +2067,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             }
 
         }
+        function copyAppsScriptCode() {
+            const code = document.getElementById('code-gs-container').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Kode Script berhasil disalin ke clipboard!', 'success');
+            }).catch(() => {
+                showToast('Gagal menyalin kode.', 'warning');
+            });
+        }
+
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
@@ -2071,7 +2117,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 setTimeout(() => toast.remove(), 300);
             }, 3500);
         }
-    
+    const APPS_SCRIPT_CODE = `
+    const SHEET_INVENTORY = 'Inventory';
+    const SHEET_RENTALS = 'Rentals';
+
+    function doGet(e) {
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          status: 'success',
+          message: 'Trek-Out Apps Script Running'
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    `;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('code-gs-container').textContent = APPS_SCRIPT_CODE;
+    });
     async function clearAllRentalData() {
     if (!confirm('Nyaan dek dihapus kabeh?')) return;
 
@@ -2079,11 +2141,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     state.rentals = [];
 
     // Simpan perubahan
-    await saveStateToFirebase();
+    saveStateToLocalStorage();
 
     renderAllViews();
 
-    
+    triggerSyncToAppsScript();
 
     showToast('Semua transaksi dan data penyewa berhasil dibersihkan!', 'success');
     }
@@ -2111,12 +2173,12 @@ async function deleteRental(rentalId) {
 
     state.rentals = state.rentals.filter(r => r.id !== rentalId);
 
-    await saveStateToFirebase();
+    saveStateToLocalStorage();
     renderAllViews();
 
     showToast('Transaksi berhasil dihapus.', 'success');
 
-    
+    triggerSyncToAppsScript();
 }
 
 function printReceipt(rentalId) {
@@ -2436,32 +2498,18 @@ async function downloadReceiptImage(rentalId) {
         document.body.removeChild(receipt);
     }
 }
+document.addEventListener("visibilitychange", async () => {
+    if (!document.hidden) {
+        await loadDataFromAppsScript();
 
-
-async function loadFirebaseData() {
-    const invSnap = await dbGet(dbRef(db, 'inventory'));
-    const rentSnap = await dbGet(dbRef(db, 'rentals'));
-
-    state.inventory = invSnap.exists() ? invSnap.val() : [];
-    state.rentals = rentSnap.exists() ? rentSnap.val() : [];
-
-    renderAllViews();
-}
-
-function listenRealtime() {
-    dbOnValue(dbRef(db, 'inventory'), snap => {
-        state.inventory = snap.val() || [];
+        renderDashboard();
         renderInventoryTable();
-        renderDashboard();
-    });
-
-    dbOnValue(dbRef(db, 'rentals'), snap => {
-        state.rentals = snap.val() || [];
         renderRentalsTable();
-        renderDashboard();
         renderCustomerTable();
-    });
-}
+    }
+});
+
+
 
     </script>
 
